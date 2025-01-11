@@ -6,7 +6,7 @@ app = Flask(__name__)
 # Replace these with your actual app details
 APP_ID = "1262689168372475"
 APP_SECRET = "bd115fce01ea96818414440eb68bc8eb"
-REDIRECT_URI = "https://instaloader-backend.onrender.com/callback"
+REDIRECT_URI = "https://graphapi-sl3z.onrender.com/callback"
 FB_AUTH_URL = "https://www.facebook.com/v17.0/dialog/oauth"
 TOKEN_URL = "https://graph.facebook.com/v17.0/oauth/access_token"
 
