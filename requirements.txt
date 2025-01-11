@@ -5,3 +5,4 @@ Flask-RESTful==0.3.8
 Flask-SQLAlchemy==2.4.3
 gunicorn==23.0.0
 requests==2.32.3
+gunicorn
