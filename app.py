@@ -133,7 +133,13 @@ def get_impressions():
 
     insights_url = f"https://graph.facebook.com/v17.0/{media_id}/insights"
     insights_params = {"metric": "impressions", "access_token": long_lived_token}
-    response = requests.get(insights_url, params=insights_params)
+    
+    try:
+        response = requests.get(insights_url, params=insights_params, timeout=10)  # 10 seconds timeout
+    except requests.exceptions.Timeout:
+        return jsonify({"error": "The request timed out."})
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"})
 
     if response.status_code != 200:
         return jsonify({"error": response.json()})
@@ -144,7 +150,6 @@ def get_impressions():
         return jsonify({"impressions": impressions})
     else:
         return jsonify({"error": "No insights data found for the media."})
-
 
 if __name__ == "__main__":
     app.run(debug=True)
