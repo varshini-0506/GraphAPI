@@ -76,7 +76,7 @@ def get_media_id():
         return jsonify({"error": "Long-lived token is required."})
 
     # Get Instagram user ID from the authenticated user's account
-    user_url = "https://graph.facebook.com/v17.0/me"
+    user_url = "https://graph.facebook.com/v17.0/me/accounts"
     user_params = {"fields": "id", "access_token": long_lived_token}
     response = requests.get(user_url, params=user_params)
 
