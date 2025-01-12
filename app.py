@@ -1,6 +1,9 @@
 from flask import Flask, redirect, request, jsonify
 import requests
+import logging
 
+# Setup logging
+logging.basicConfig(level=logging.ERROR)
 app = Flask(__name__)
 
 # Replace these with your actual app details
@@ -71,35 +74,53 @@ def get_long_lived_token():
 @app.route("/get_media_id")
 def get_media_id():
     """Step 4: Fetch media ID of Instagram posts for the authenticated user"""
-    long_lived_token = request.args.get("token")  # Pass long-lived token as a query param
-    if not long_lived_token:
-        return jsonify({"error": "Long-lived token is required."})
+    try:
+        long_lived_token = request.args.get("token")  # Pass long-lived token as a query param
+        if not long_lived_token:
+            return jsonify({"error": "Long-lived token is required."})
 
-    # Get Instagram user ID from the authenticated user's account
-    user_url = "https://graph.facebook.com/v17.0/me/accounts"
-    user_params = {"fields": "id", "access_token": long_lived_token}
-    response = requests.get(user_url, params=user_params)
+        # Get the Facebook Pages the user manages
+        pages_url = "https://graph.facebook.com/v17.0/me/accounts"
+        pages_params = {"access_token": long_lived_token}
+        pages_response = requests.get(pages_url, params=pages_params)
 
-    if response.status_code != 200:
-        return jsonify({"error": response.json()})
+        if pages_response.status_code != 200:
+            logging.error(f"Pages API Error: {pages_response.json()}")
+            return jsonify({"error": pages_response.json()})
 
-    user_data = response.json()
-    user_id = user_data["id"]
+        pages_data = pages_response.json()
+        if "data" not in pages_data or not pages_data["data"]:
+            return jsonify({"error": "No pages found or no Instagram account linked."})
 
-    # Get media (posts) for the Instagram user
-    media_url = f"https://graph.facebook.com/v17.0/{user_id}/media"
-    media_params = {"access_token": long_lived_token}
-    media_response = requests.get(media_url, params=media_params)
+        # Find Instagram Business Account ID
+        instagram_account_id = None
+        for page in pages_data["data"]:
+            if "instagram_business_account" in page:
+                instagram_account_id = page["instagram_business_account"]["id"]
+                break
 
-    if media_response.status_code != 200:
-        return jsonify({"error": media_response.json()})
+        if not instagram_account_id:
+            return jsonify({"error": "No Instagram Business Account linked to the user."})
 
-    media_data = media_response.json()
-    if media_data.get("data"):
-        media_id = media_data["data"][0]["id"]  # Get the first media ID
-        return jsonify({"media_id": media_id})
-    else:
-        return jsonify({"error": "No media found for the user."})
+        # Fetch media for the Instagram Business Account
+        media_url = f"https://graph.facebook.com/v17.0/{instagram_account_id}/media"
+        media_params = {"access_token": long_lived_token}
+        media_response = requests.get(media_url, params=media_params)
+
+        if media_response.status_code != 200:
+            logging.error(f"Media API Error: {media_response.json()}")
+            return jsonify({"error": media_response.json()})
+
+        media_data = media_response.json()
+        if media_data.get("data"):
+            media_id = media_data["data"][0]["id"]  # Get the first media ID
+            return jsonify({"media_id": media_id})
+        else:
+            return jsonify({"error": "No media found for the Instagram account."})
+
+    except Exception as e:
+        logging.error(f"An unexpected error occurred: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred.", "details": str(e)})
 
 
 @app.route("/get_impressions")

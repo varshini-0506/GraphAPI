@@ -1,10 +1,10 @@
 amqp==5.3.1
-aniso8601==8.0.0      
+aniso8601==8.0.0
 annotated-types==0.7.0
-APScheduler==3.11.0   
-billiard==4.2.1       
-blinker==1.8.2        
-cachelib==0.9.0       
+APScheduler==3.11.0
+billiard==4.2.1
+blinker==1.8.2
+cachelib==0.9.0
 cachetools==5.5.0
 celery==5.4.0
 certifi==2024.8.30
@@ -39,6 +39,7 @@ instaloader==4.13.1
 itsdangerous==1.1.0
 Jinja2==2.11.2
 kombu==5.4.2
+logging==0.4.9.6
 MarkupSafe==1.1.1
 packaging==24.1
 pillow==10.4.0
@@ -73,4 +74,3 @@ vine==5.1.0
 virtualenv==20.26.6
 wcwidth==0.2.13
 Werkzeug==1.0.1
-gunicorn
